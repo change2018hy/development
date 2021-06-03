@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link href="css/mui.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/search.css"/>
+	</head>
+
+	<body>
+
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">垃圾分类</h1>
+		</header>
+		
+		<section>
+			<h1>匹配结果</h1>
+			<div class="search-input">
+				<form action="" onsubmit="return false" id="formSearch">
+					<input type="search" autofocus="autofocus" placeholder="请输入搜索内容" id="searchInput"/>
+				</form>
+			</div>
+		</section>
+		
+		<section class="search-list">
+			<div class="hot-search">
+				<h3>热门搜索</h3>
+				<ul id="hotSearch">
+				</ul>
+			</div>
+			<div class="history-search" id="historyList">
+				<h3>搜索历史</h3>
+				<ul class="mui-table-view">
+				</ul>
+			</div>
+		</section>
+		
+		
+		<script src="js/mui.js"></script>
+		<script src="js/flexible.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function () {
+				var storage = localStorage;
+				// 一旦进入页面,就需要读取本地存储的内容
+				fGetStorage();
+				
+				// 热门搜索的展示
+				mui.ajax("http://apis.juhe.cn/rubbish/hotSearch", {
+					dataType: "json",
+					data: {
+						key: "dfe7a5dc90a9be32d35d15d5a06eb619"
+					},
+					success: function(data) {
+						var result = data.result;
+						mui.each(result, function(index,item) {
+							document.getElementById("hotSearch").innerHTML += `
+							 <li data-title='${item.itemName}'>${item.itemName}</li>
+							`
+						})
+					}
+				})
+				
+				// 点击热门搜索,进入详情页
+					
+				mui("#hotSearch").on("tap", "li", function() {
+					 var dataTitle = this.getAttribute("data-title");
+				     fOpenWindow(dataTitle);
+					 //设置本地存储
+					 fSetStorage(dataTitle);
+					 //读取本地存储
+					 fGetStorage();
+				})
+				
+			    //键盘事件
+					
+				mui(".search-input").on("keypress", "#formSearch", function(e) {
+					var keyCode = e.keyCode;
+					//获取到input搜索框的输入值
+					var inputValue = document.getElementById("searchInput").value;
+					// 点击了搜索按钮,进入搜索状态
+					if(keyCode == 13) {
+					 fOpenWindow(inputValue);
+					 // 设置本地存储
+				    fSetStorage(inputValue);
+					//读取本地存储
+					fGetStorage();
+					// 收起软键盘
+					  document.activeElement.blur();
+						
+					}
+					
+				})
+				//点击页面空白处，收起软键盘
+					
+				window.addEventListener("touchstart",function() {
+					document.activeElement.blur();
+				}, false);
+				
+				//点击搜索历史，跳转到详情页
+				mui("#historyList").on("tap", "li", function(){
+					var dataTitle = this.getAttribute("data-title");
+					fOpenWindow(dataTitle);
+				})
+				
+				//封装跳转到详情页的函数
+					
+				function fOpenWindow(val) {
+		                mui.openWindow({
+		                      url: "detail.html",
+		                	  id: "detail",
+		                	  extras: {
+		                	    title: encodeURI(val)
+		                	  }
+		                })
+						
+					} 
+				
+				
+				
+				//本地存储--》读取操作
+					
+				function fGetStorage() {
+					// storage.removeItem("historySearch")
+					sHtmlLi = '';
+                     // 如果本地没有key就设置,如果有key就获取
+					if(!storage.getItem("historySearch")) {
+						storage.setItem("historySearch", "[]");
+					}
+					//如果有循环遍历渲染到页面
+					var arr = JSON.parse(storage.getItem("historySearch"));
+					mui.each(arr, function(index, item){
+						sHtmlLi+=`
+						<li class="mui-table-view-cell" data-title=${item}>
+							<a class="mui-navigate-right">
+								${item}
+							</a>
+						</li>
+						`
+					})
+					document.querySelector(".mui-table-view").innerHTML = sHtmlLi;
+				}
+				//本地存储--》设置操作
+				function fSetStorage(val) {
+					//获取之前是否有数据
+					var arr = JSON.parse(storage.getItem("historySearch"));
+					//清除重复==》如果有重复，就不添加进去
+					var arrFilter = arr.filter(function(item) {
+						return item.indexOf(val) < 0; 
+					})
+					//添加到新数组中
+					arrFilter.unshift(val);
+					//取前5个记录
+				     var newArr = arrFilter.slice(0,6);
+					//更新本地存储的数据
+					storage.setItem("historySearch", JSON.stringify(newArr));
+					
+				}
+				
+			})
+			
+		</script>
+	</body>
+
+</html>

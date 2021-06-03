@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/common.css"/>
+		<link rel="stylesheet" type="text/css" href="css/class.css"/>
+	</head>
+
+	<body>
+		
+		  <header class="mui-bar mui-bar-nav">
+		  	<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		  	<h1 class="mui-title">垃圾分类</h1>
+		  </header>
+		  
+		  <div class="detail">
+			  <p>向右滑棕色方块，得到更多分类</p>
+		  </div>
+		  
+		 <div class="container">
+		  <section>
+		  		<div class="mui-slider">
+		  		  <div class="mui-slider-group" id="muiGroup">
+		  		    <!--第一个内容区容器-->
+		  		   <!-- <div class="mui-slider-item">
+		  			  <div>
+		  			 	<h3>湿垃圾</h3>
+		  				<p>厨余垃圾</p>
+		  			 </div>
+					 </div> -->
+					 
+		  		    <!--第二个内容区-->
+		  		    <!-- <div class="mui-slider-item"> -->
+		  		      <!-- 具体内容 -->
+		  		    <!-- </div> -->
+		  		  </div>
+		  		</div>
+		 	
+		  	    <div class="scroll-list">
+		  			<div class="mui-scroll-wrapper">
+		  				<div class="mui-scroll">
+		  					<!--这里放置真实显示的DOM内容-->
+		  					<ul class="mui-table-view" id="scrollItem">
+		  							<!-- <li class="mui-table-view-cell">
+		  								<a class="mui-navigate-right">
+		  									Item 1
+		  								</a>
+		  							</li> -->
+		  				    </ul>
+		  				</div>
+		  			</div>
+		  		</div>	
+		    </section>
+		   </div>
+
+		
+		<script src="js/mui.js"></script>
+		<script type="text/javascript" src="js/flexible.js"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function () {
+				// 垃圾分类 数据请求
+				mui.ajax("http://apis.juhe.cn/rubbish/category",{
+					dataType:"json",
+					data: {
+						key: "dfe7a5dc90a9be32d35d15d5a06eb619"
+					},
+					success: function(data) {
+						var result = data.result;
+						// console.log(result)
+						mui.each(result, function(index,item){
+							document.getElementById("muiGroup").innerHTML += `
+							  <div class="mui-slider-item">
+							   <div>
+							   	<h3>${item.name}</h3>
+							  	<p>${item.explain}</p>
+							   </div>	
+							  
+							  </div>
+							`;
+							
+						})
+						//调用显示数据的函数(进入页面未滑动时)
+						fAddList(result[0]);
+						// 从第几个开始
+						mui('.mui-slider').slider().gotoItem(0);
+						//滑动事件slide
+						document.querySelector(".mui-slider").addEventListener("slide", function(e) {
+							fAddList(result[e.detail.slideNumber]);
+							//滑动到了第几个
+							// console.log(JSON.stringify(e.detail.slideNumber));
+						})
+						
+						}
+					})
+				
+				//滑动
+				mui(".mui-scroll-wrapper").scroll();
+				
+				//滑动对应显示的内容
+				function fAddList(options){
+					// console.log(JSON.stringify(options.common))
+					var sHtml =" ";
+					var newArr = options.common.split("、");
+					mui.each(newArr, function(index, item) {
+						sHtml += `
+						  <li class="mui-table-view-cell" data-title=${item}>
+						  	<a class="mui-navigate-right">
+						  		${item}
+						  	</a>
+						  </li>
+						`
+					})
+					document.getElementById("scrollItem").innerHTML = sHtml;
+				}
+				
+				// 点击列表跳转页面
+				mui("#scrollItem").on("tap", "li", function(){
+					var dataTitle = this.getAttribute("data-title");
+					mui.openWindow({
+						url: "detail.html",
+						id: "detail",
+						extras: {
+							title: encodeURI(dataTitle)
+						  }
+					}) 
+				})	
+				
+			})
+		</script>
+	</body>
+
+</html>

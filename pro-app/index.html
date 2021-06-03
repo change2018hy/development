@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="css/iconfont.css"/>
+	<link rel="stylesheet" href="css/index.css"/>
+	<link rel="stylesheet" href="css/common.css"/>
+</head>
+<body>
+	<header>
+	  <h1>垃圾分类</h1>
+	  <ul>
+		  <li id="classList">
+			  <i class="iconfont iconleimupinleifenleileibie2"></i>
+			  <span>垃圾分类</span>
+		  </li>
+	  </ul>
+	</header>
+	
+	<footer>
+		<i class="iconfont iconyuyinhecheng" id="speech"></i>
+		<ul>
+			<li>
+				<i class="iconfont iconiconset0103" id="message"></i>
+			</li>
+			<li>
+				<span>语音查找</span>
+			</li>
+			<li id="goSearch">
+				<i class="iconfont iconsearch"></i>
+			</li>
+		</ul>
+	</footer>
+	
+	<script src="js/mui.min.js"></script>
+	<script src="js/flexible.js"></script>
+	<script type="text/javascript" charset="utf-8">
+	  	mui.init();
+		mui.plusReady(function() {
+			//设置系统状态栏背景颜色
+			plus.navigator.setStatusBarBackground("#F2F3F1");
+		    
+			//触发语音识别
+			mui("footer").on("tap", "#speech", function() {
+				var options = {
+				  punctuation: false,
+				  engine: "baidu"
+				}
+			  plus.speech.startRecognize(options, function(data) {
+				  mui.openWindow({
+					  url: "detail.html",
+					  id: "detail",
+					  extras: {
+						  title: encodeURI(data)
+					  }
+				  }) 
+			  }, function() {
+				  mui.toast("语音识别失败~请重新再试！");
+			  });
+			})
+			
+			// 跳转到搜索页
+				
+			mui("footer").on("tap", "#goSearch", function() {
+				mui.openWindow({
+					url: "search.html",
+					id: "search",
+							   
+				}) 
+			}) 
+			// 点击进入垃圾分类页面
+			mui("header").on("tap", "#classList", function() {
+				mui.openWindow({
+					url: "class.html",
+					id: "class"
+							   
+				}) 
+			})
+			
+			mui("footer").on("tap", "#message", function() {
+				mui.openWindow({
+					url: "message.html",
+					id: "message"
+				})
+			})
+			
+		})
+	</script>
+	
+</body>
+</html>
